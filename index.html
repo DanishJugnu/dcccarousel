@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carousel Config - Decent Coaching Classes</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #00539C;
+    --orange: #FF5733;
+    --bg: #f5f7fa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--bg);
+    margin: 0;
+    color: #222;
+    padding-bottom: 60px;
+  }
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  header h1 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+  header p { margin: 4px 0 0; font-size: 0.85rem; opacity: 0.85; }
+  .container { max-width: 640px; margin: 0 auto; padding: 16px; }
+
+  /* Token gate */
+  #gate {
+    background: white;
+    border-radius: 12px;
+    padding: 24px 18px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-top: 20px;
+  }
+  #gate label { font-weight: 500; display: block; margin-bottom: 8px; }
+  #gate input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  #gate small { color: #666; display: block; margin-bottom: 14px; line-height: 1.4; }
+
+  button {
+    font-family: inherit;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--navy); color: white; width: 100%; }
+  .btn-danger { background: #e53935; color: white; }
+  .btn-secondary { background: #eee; color: #333; }
+
+  #app { display: none; }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 24px 0 10px;
+    color: var(--navy);
+  }
+
+  .upload-box {
+    background: white;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .upload-box input[type=file] { display: none; }
+  .upload-box .pick-btn {
+    background: var(--orange);
+    color: white;
+    display: inline-block;
+  }
+  .upload-box p { color: #777; font-size: 0.85rem; margin: 10px 0 0; }
+
+  #uploadQueue { margin-top: 12px; }
+  .queue-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border-radius: 8px;
+    padding: 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .queue-item img { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; }
+  .queue-item .name { flex: 1; font-size: 0.85rem; word-break: break-all; }
+  .queue-item .status { font-size: 0.75rem; color: #888; }
+
+  #imageList { display: flex; flex-direction: column; gap: 10px; }
+  .img-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .img-card img {
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: #eee;
+  }
+  .img-card .meta { flex: 1; min-width: 0; }
+  .img-card .fname { font-size: 0.85rem; font-weight: 500; word-break: break-all; }
+  .img-card .order-badge {
+    font-size: 0.7rem;
+    color: white;
+    background: var(--navy);
+    border-radius: 20px;
+    padding: 1px 8px;
+    display: inline-block;
+    margin-top: 4px;
+  }
+  .img-card .actions { display: flex; flex-direction: column; gap: 6px; }
+  .img-card .actions button { padding: 6px 8px; font-size: 0.8rem; }
+  .move-btn { background: #eee; color: #333; }
+
+  .empty-note {
+    text-align: center;
+    color: #888;
+    padding: 30px 10px;
+    font-size: 0.9rem;
+  }
+
+  #toast {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    max-width: 90%;
+    text-align: center;
+    z-index: 999;
+  }
+  #toast.show { opacity: 1; }
+  #toast.error { background: #b71c1c; }
+
+  .logout-row { text-align: center; margin-top: 30px; }
+  .logout-row a { color: #999; font-size: 0.8rem; text-decoration: underline; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Carousel Manager</h1>
+  <p>Decent Coaching Classes</p>
+</header>
+
+<div class="container">
+
+  <div id="gate">
+    <label for="tokenInput">Login</label>
+    <input type="password" id="tokenInput" placeholder="Go Away Hacker" autocomplete="off">
+    
+    <button class="btn-primary" onclick="unlock()">Unlock</button>
+  </div>
+
+  <div id="app">
+    <div class="section-title">Add Images</div>
+    <div class="upload-box">
+      <label class="btn-primary pick-btn" for="fileInput">Choose Photos</label>
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
+      <p>You can select multiple images. They'll be added to the end of the carousel.</p>
+    </div>
+    <div id="uploadQueue"></div>
+
+    <div class="section-title">Current Carousel</div>
+    <div id="imageList"></div>
+    <div id="emptyNote" class="empty-note" style="display:none;">No images yet. Add some above.</div>
+
+    <div class="logout-row">
+      <a onclick="logout()">Sign out of this device</a>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const OWNER = "DanishJugnu";
+const REPO = "dcccarousel";
+const BRANCH = "main";
+const API = `https://api.github.com/repos/${OWNER}/${REPO}/contents`;
+
+function token() { return localStorage.getItem('dcc_gh_token'); }
+function ghHeaders(extra) {
+  return Object.assign({
+    'Authorization': `Bearer ${token()}`,
+    'Accept': 'application/vnd.github+json'
+  }, extra || {});
+}
+
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = isError ? 'show error' : 'show';
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function unlock() {
+  const val = document.getElementById('tokenInput').value.trim();
+  if (!val) { showToast('Enter a token first', true); return; }
+  localStorage.setItem('dcc_gh_token', val);
+  await tryEnter();
+}
+
+async function tryEnter() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${OWNER}/${REPO}`, { headers: ghHeaders() });
+    if (!res.ok) throw new Error('Bad token or no repo access (' + res.status + ')');
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    await refreshList();
+  } catch (e) {
+    showToast(e.message, true);
+    localStorage.removeItem('dcc_gh_token');
+  }
+}
+
+function logout() {
+  localStorage.removeItem('dcc_gh_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('gate').style.display = 'block';
+  document.getElementById('tokenInput').value = '';
+}
+
+// ---- GitHub content helpers ----
+async function getFile(path) {
+  const res = await fetch(`${API}/${encodeURIComponent(path).replace(/%2F/g,'/')}?ref=${BRANCH}&t=${Date.now()}`, { headers: ghHeaders() });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`Couldn't read ${path} (${res.status})`);
+  return res.json();
+}
+
+async function putFile(path, base64Content, sha, message) {
+  const body = { message, content: base64Content, branch: BRANCH };
+  if (sha) body.sha = sha;
+  const res = await fetch(`${API}/${path}`, {
+    method: 'PUT',
+    headers: ghHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) throw new Error(`Couldn't save ${path} (${res.status})`);
+  return res.json();
+}
+
+async function deleteFile(path, sha, message) {
+  const res = await fetch(`${API}/${path}`, {
+    method: 'DELETE',
+    headers: ghHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ message, sha, branch: BRANCH })
+  });
+  if (!res.ok) throw new Error(`Couldn't delete ${path} (${res.status})`);
+  return res.json();
+}
+
+function b64FromString(str) {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function stringFromB64(b64) {
+  return decodeURIComponent(escape(atob(b64.replace(/\n/g, ''))));
+}
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+function sanitizeName(name) {
+  const dot = name.lastIndexOf('.');
+  const base = (dot > -1 ? name.slice(0, dot) : name).toLowerCase().replace(/[^a-z0-9-_]+/g, '-').replace(/^-+|-+$/g, '');
+  const ext = dot > -1 ? name.slice(dot).toLowerCase() : '';
+  return `${base || 'img'}-${Date.now().toString(36)}${ext}`;
+}
+
+// ---- Manifest ----
+async function loadManifest() {
+  const file = await getFile('images/manifest.json');
+  if (!file) return { list: [], sha: null };
+  return { list: JSON.parse(stringFromB64(file.content)), sha: file.sha };
+}
+async function saveManifest(list, sha, message) {
+  return putFile('images/manifest.json', b64FromString(JSON.stringify(list, null, 2)), sha, message);
+}
+async function updateManifest(mutator, message) {
+  const { list, sha } = await loadManifest();
+  const newList = mutator(list.slice());
+  await saveManifest(newList, sha, message);
+  return newList;
+}
+
+// ---- Rendering ----
+async function refreshList() {
+  const { list } = await loadManifest();
+  const container = document.getElementById('imageList');
+  const emptyNote = document.getElementById('emptyNote');
+  container.innerHTML = '';
+  if (!list.length) {
+    emptyNote.style.display = 'block';
+    return;
+  }
+  emptyNote.style.display = 'none';
+  list.forEach((filename, i) => {
+    const card = document.createElement('div');
+    card.className = 'img-card';
+    card.innerHTML = `
+      <img src="https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/images/${filename}?t=${Date.now()}" alt="${filename}">
+      <div class="meta">
+        <div class="fname">${filename}</div>
+        <div class="order-badge">Slide ${i + 1} of ${list.length}</div>
+      </div>
+      <div class="actions">
+        <button class="move-btn" ${i === 0 ? 'disabled' : ''} onclick="moveImage(${i}, -1)">▲ Up</button>
+        <button class="move-btn" ${i === list.length - 1 ? 'disabled' : ''} onclick="moveImage(${i}, 1)">▼ Down</button>
+        <button class="btn-danger" onclick="deleteImage('${filename}')">Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+async function moveImage(index, dir) {
+  try {
+    await updateManifest(list => {
+      const target = index + dir;
+      if (target < 0 || target >= list.length) return list;
+      [list[index], list[target]] = [list[target], list[index]];
+      return list;
+    }, `Reorder carousel image`);
+    await refreshList();
+  } catch (e) {
+    showToast(e.message, true);
+  }
+}
+
+async function deleteImage(filename) {
+  if (!confirm(`Delete "${filename}" from the carousel?`)) return;
+  try {
+    const filePath = `images/${filename}`;
+    const file = await getFile(filePath);
+    if (file) await deleteFile(filePath, file.sha, `Delete carousel image ${filename}`);
+    await updateManifest(list => list.filter(f => f !== filename), `Remove ${filename} from manifest`);
+    showToast(`Deleted ${filename}`);
+    await refreshList();
+  } catch (e) {
+    showToast(e.message, true);
+  }
+}
+
+// ---- Upload ----
+async function handleFiles(event) {
+  const files = Array.from(event.target.files || []);
+  event.target.value = '';
+  if (!files.length) return;
+
+  const queue = document.getElementById('uploadQueue');
+  for (const file of files) {
+    const row = document.createElement('div');
+    row.className = 'queue-item';
+    const previewUrl = URL.createObjectURL(file);
+    row.innerHTML = `<img src="${previewUrl}"><div class="name">${file.name}</div><div class="status">Uploading…</div>`;
+    queue.appendChild(row);
+    const statusEl = row.querySelector('.status');
+
+    try {
+      const safeName = sanitizeName(file.name);
+      const base64 = await fileToBase64(file);
+      await putFile(`images/${safeName}`, base64, null, `Add carousel image ${safeName}`);
+      await updateManifest(list => { list.push(safeName); return list; }, `Add ${safeName} to manifest`);
+      statusEl.textContent = 'Done ✓';
+      statusEl.style.color = '#2e7d32';
+    } catch (e) {
+      statusEl.textContent = 'Failed';
+      statusEl.style.color = '#b71c1c';
+      showToast(`${file.name}: ${e.message}`, true);
+    }
+  }
+  await refreshList();
+  setTimeout(() => { queue.innerHTML = ''; }, 2500);
+}
+
+// ---- Boot ----
+window.addEventListener('DOMContentLoaded', () => {
+  if (token()) tryEnter();
+});
+</script>
+</body>
+</html>
